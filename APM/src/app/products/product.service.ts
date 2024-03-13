@@ -9,6 +9,7 @@ import {
   merge,
   Observable,
   scan,
+  shareReplay,
   Subject,
   tap,
   throwError,
@@ -48,17 +49,8 @@ export class ProductService {
             searchKey: [product.productName],
           } as Product)
       )
-    )
-  );
-
-  selectedProduct$ = combineLatest([
-    this.productsWithCategory$,
-    this.productSelectedAction$,
-  ]).pipe(
-    map(([products, selectedProductId]) =>
-      products.find((product) => product.id === selectedProductId)
     ),
-    tap((product) => console.log('Selected product', product))
+    shareReplay(1)
   );
 
   productsWithAdd$ = merge(
@@ -69,6 +61,17 @@ export class ProductService {
       (acc, value) => (value instanceof Array ? [...value] : [...acc, value]),
       [] as Product[]
     )
+  );
+
+  selectedProduct$ = combineLatest([
+    this.productsWithCategory$,
+    this.productSelectedAction$,
+  ]).pipe(
+    map(([products, selectedProductId]) =>
+      products.find((product) => product.id === selectedProductId)
+    ),
+    shareReplay(1),
+    tap((product) => console.log('Selected product', product))
   );
 
   constructor(
