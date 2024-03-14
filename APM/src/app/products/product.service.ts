@@ -17,6 +17,7 @@ import {
 
 import { Product } from './product';
 import { ProductCategoryService } from '../product-categories/product-category.service';
+import { SupplierService } from '../suppliers/supplier.service';
 
 @Injectable({
   providedIn: 'root',
@@ -74,9 +75,21 @@ export class ProductService {
     tap((product) => console.log('Selected product', product))
   );
 
+  selectedProductSuppliers$ = combineLatest([
+    this.selectedProduct$,
+    this.supplierService.suppliers$,
+  ]).pipe(
+    map(([selectedProduct, suppliers]) =>
+      suppliers.filter((supplier) =>
+        selectedProduct?.supplierIds?.includes(supplier.id)
+      )
+    )
+  );
+
   constructor(
     private http: HttpClient,
-    private productCategoryService: ProductCategoryService
+    private productCategoryService: ProductCategoryService,
+    private supplierService: SupplierService
   ) {}
 
   public addProduct(newProduct?: Product) {
