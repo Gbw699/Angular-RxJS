@@ -3,7 +3,7 @@ import { Supplier } from '../../suppliers/supplier';
 import { Product } from '../product';
 
 import { ProductService } from '../product.service';
-import { EMPTY, catchError, map } from 'rxjs';
+import { EMPTY, catchError, combineLatest, map } from 'rxjs';
 
 @Component({
   selector: 'pm-product-detail',
@@ -28,6 +28,16 @@ export class ProductDetailComponent {
     catchError((err) => {
       this.errorMessage = err;
       return EMPTY;
+    })
+  );
+
+  vm$ = combineLatest([
+    this.product$,
+    this.pageTitle$,
+    this.productSuppliers$,
+  ]).pipe(
+    map(([product, pageTitle, productSuppliers]) => {
+      return { product, pageTitle, productSuppliers };
     })
   );
 
